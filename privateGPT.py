@@ -5,11 +5,20 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.vectorstores import Chroma
 from langchain.llms import GPT4All, LlamaCpp
+from langchain import PromptTemplate
 import os
 import argparse
 import time
 
 load_dotenv()
+
+tempalte = """HUMAN: <prompt>Use the following context to answer the question at the end about a game. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+              context: {context}
+              
+              Question: {question} 
+              
+              ASSISTANT: <response>"""
 
 embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME")
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
@@ -40,7 +49,14 @@ def main():
             # raise exception if model_type is not supported
             raise Exception(f"Model type {model_type} is not supported. Please choose one of the following: LlamaCpp, GPT4All")
         
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents= not args.hide_source)
+    qa = RetrievalQA.from_chain_type(llm=llm, 
+                                     chain_type="stuff", 
+                                     retriever=retriever, 
+                                     return_source_documents= not args.hide_source,
+                                     chain_type_kwargs={"prompt": PromptTemplate(
+                                       template=tempalte,
+                                       input_variables=["context", "question"]
+                                    )})
     # Interactive questions and answers
     while True:
         query = input("\nEnter a query: ")
