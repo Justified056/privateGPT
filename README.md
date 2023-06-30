@@ -50,6 +50,9 @@ This repo uses a [state of the union transcript](https://github.com/imartinez/pr
 
 Put any and all your files into the `source_documents` directory
 
+Put any documents you don't want to be ingested into source_documents_to_note_be_ingested
+This folder is for docs for staging and not actual ingested, but you'd like to keep around.
+
 The supported extensions are:
 
 - `.csv`: CSV,
