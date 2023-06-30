@@ -79,8 +79,11 @@ def main():
 
         # Print the relevant sources used for the answer
         for document in docs:
-            print("\n> " + document.metadata["source"] + ":")
-            print(document.page_content)
+            metaDataValuesDisplay = ""
+            for key, value in document.metadata.items():
+                metaDataValuesDisplay += f'{key}: {value}, '
+            print("\n> " + f'Embedding metadata: {metaDataValuesDisplay.rstrip(", ")}')
+            print(f'Content: {document.page_content}')
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='privateGPT: Ask questions to your documents without an internet connection, '
