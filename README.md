@@ -9,6 +9,8 @@ Built with [LangChain](https://github.com/hwchase17/langchain), [GPT4All](https:
 # Environment Setup
 
 Make sure to activate virtual env private_gpt
+Create env if you haven't: python -m venv /path/to/new/virtual/environment where the path is the project base example: C:\Users\jlock\Documents\AI Projects\privateGPT\env_name_here
+Activate if already created example: private_gpt\Scripts\activate - Make sure you're in the actual directory this is located in as this is a relative path
 
 In order to set your environment up to run the code here, first install all requirements:
 
