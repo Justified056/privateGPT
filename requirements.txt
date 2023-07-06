@@ -1,6 +1,6 @@
-langchain==0.0.197
+langchain
 gpt4all==0.3.4
-chromadb==0.3.23
+chromadb
 llama-cpp-python==0.1.50
 urllib3==2.0.2
 PyMuPDF==1.22.3
@@ -11,3 +11,4 @@ tabulate==0.9.0
 pandoc==2.3
 pypandoc==1.11
 tqdm==4.65.0
+openai
