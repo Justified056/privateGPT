@@ -12,31 +12,12 @@ from langchain.vectorstores import Chroma
 import argparse
 import time
 from constants import CHROMA_SETTINGS
+from prompts import get_chain
 
 load_dotenv()
 
-tempalte = """I want you to ANSWER a QUESTION based on the following pieces of CONTEXT
-
-              If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-              Your ANSWER should be truthful and correct according to the given SOURCES.
-
-              CONTEXT: {context}
-              
-              Question: {question} 
-              
-              ANSWER:
-              """
-
 embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME")
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
-
-model_type = os.environ.get('MODEL_TYPE')
-model_path = os.environ.get('MODEL_PATH')
-model_n_ctx = os.environ.get('MODEL_N_CTX')
-model_n_batch = int(os.environ.get('MODEL_N_BATCH',8))
-target_source_chunks = int(os.environ.get('TARGET_SOURCE_CHUNKS',4))
-openai_key = os.environ.get('OPENAI_API_KEY')
 
 def main():
     # Parse the command line arguments
@@ -44,16 +25,8 @@ def main():
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
     db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
     index = VectorStoreIndexWrapper(vectorstore=db)
-    retriever = index.vectorstore.as_retriever(search_kwargs={"k": target_source_chunks})
-    # activate/deactivate the streaming StdOut callback for LLMs
-    callbacks = [] if args.mute_stream else [StreamingStdOutCallbackHandler()]
-        
-    chain = ConversationalRetrievalChain.from_llm(
-      llm=ChatOpenAI(model="gpt-3.5-turbo", 
-                    openai_api_key=openai_key),
-                    retriever=retriever,
-                    callbacks=callbacks)
-    
+    chain = get_chain(index.vectorstore) 
+
     # Interactive questions and answers
     chat_history = []
     while True:
