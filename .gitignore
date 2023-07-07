@@ -163,4 +163,5 @@ dmypy.json
 cython_debug/
 
 source_documents/
+source_documents_to_not_be_ingested/
 chat_history_logs/
