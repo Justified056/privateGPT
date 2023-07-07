@@ -1,0 +1,25 @@
+ELDEN RING CLASS NAME: Warrior
+Warrior is a starting Class in Elden Ring. The Warrior has High Dex and medium physical stats. It starts the game level 8, with two scimitars and a light shield.
+WARRIOR STARTING ATTRIBUTES/STATS
+Rune level 8
+Vigor 11
+Mind 12
+Endurance 11
+Strength 10
+Dexterity 16
+Intelligence 10
+Faith 8
+Arcane 9
+WARRIOR STARTING EQUIPMENT FOR ELDEN RING
+2x Scimitar
+Riveted Wooden Shield
+Blue Cloth Cowl
+Blue Cloth Vest
+Warrior Gauntlets
+Warrior Greaves
+STARTING ITEMS FOR WARRIOR IN ELDEN RING
+Memory of Grace
+Players Choice of Keepsake
+ELDEN RING WARRIOR NOTES & TIPS
+Despite the class' stats suggesting a dexterity build, it is outclassed by the Samurai in terms of build optimization, unless you intend to use either glintstone pebble or bestial constitution which the Warrior can access without further investment.
+The Warrior starts with two Scimitars. When holding both in either hand, press L1 to attack with both. These L1 attacks deal more damage than R1 and applies status effects (Poison, Bleed, Cold) at a faster rate.

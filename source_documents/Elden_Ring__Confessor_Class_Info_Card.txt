@@ -1,0 +1,31 @@
+ELDEN RING CLASS NAME: Confessor
+Confessor is a starting Class in Elden Ring. The Confessor has high Faith and medium physical stats. It starts the game level 10 with a broadsword, a kite shield and a finger seal. 
+CONFESSOR STARTING ATTRIBUTES/STATS
+Rune level 10
+Vigor 10
+Mind 13
+Endurance 10
+Strength 12
+Dexterity 12
+Intelligence 9
+Faith 14
+Arcane 9
+CONFESSOR STARTING EQUIPMENT FOR ELDEN RING
+Urgent Heal
+Assassin's Approach
+Broadsword
+Finger Seal
+Blue Crest Heater Shield
+Confessor Hood
+Confessor Armor
+Confessor Gloves
+Confessor Boots
+STARTING ITEMS FOR CONFESSOR IN ELDEN RING
+Memory of Grace
+Players Choice of Keepsake
+ELDEN RING CONFESSOR NOTES & TIPS
+Although designed to be a mix of combat and stealth, this Class can be seen as the defacto "Paladin" class. This one sets players up with a 100% Physical Damage reduction Shield, as well as good Faith for Incantations.
+While the stats of this class indicate it is the best choice for a hybrid build between Faith and Strength/Dexterity, there is actually no build where Confessor is the most optimal choice, and in many instances is actually worse than Wretch due to the thin distribution of points across Strength, Dexterity, Faith and Arcane causing too many wasted points. Vagabond is often the better pick for a Strength/Faith build, while Prophet is better for Dexterity/Faith.
+It can also be used for an Intelligence/Faith build that primarily utilizes Sword of Night and Flame, since the class has already met the Strength and Dexterity requirements of the weapon.
+WHAT SHOULD I LEVEL UP ELDEN RING CONFESSOR?
+Leveling Up the Elden Ring Confessor class focuses on Dex and Faith, making you a hybrid Caster.

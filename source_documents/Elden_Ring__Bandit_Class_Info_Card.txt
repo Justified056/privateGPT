@@ -1,0 +1,26 @@
+ELDEN RING CLASS NAME: Bandit
+Bandit is a starting Class in Elden Ring. The Bandit has High Arcane and Dexterity. It starts the game level 5, with a dagger, parrying shield, bow and arrows.
+BANDIT STARTING ATTRIBUTES/STATS
+Rune level 5
+Vigor 10
+Mind 11
+Endurance 10
+Strength 9
+Dexterity 13
+Intelligence 9
+Faith 8
+Arcane 14
+BANDIT STARTING EQUIPMENT FOR ELDEN RING
+Bandit Mask
+Bandit Garb
+Bandit Manchettes
+Bandit Boots
+STARTING ITEMS FOR BANDIT IN ELDEN RING
+Memory of Grace
+Players Choice of Keepsake
+ELDEN RING BANDIT NOTES & TIPS
+This class' stats are optimized for:
+Dexterity/Arcane hybrid builds that need less than 12 Strength, after which Samurai becomes more optimal.
+Dedicated pure Arcane Reduvia build, since this class already meets all requirements to use the weapon.
+Comes equipped with a Buckler shield. Due to its unique skill, Buckler Parry, players who pick Bandit will immediately have one of the best parry tools once they start playing.
+Recommended only for veteran players, as the Bandit starts off squishy and their equipment is not well-suited for head-on, aggressive combat.

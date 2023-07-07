@@ -1,0 +1,31 @@
+ELDEN RING CLASS NAME: Prisoner
+Prisoner is a starting Class in Elden Ring. The Prisoner has high Intelligence and Dexterity, and medium physical stats. It starts the game level 9, with an estoc, a staff and shield.
+PRISONER STARTING ATTRIBUTES/STATS
+Rune level 9
+Vigor 11
+Mind 12
+Endurance 11
+Strength 11
+Dexterity 14
+Intelligence 14
+Faith 6
+Arcane 9
+PRISONER STARTING EQUIPMENT FOR ELDEN RING
+Magic Glintblade
+Estoc
+Glintstone Staff
+Rift Shield
+Prisoner Iron Mask
+Prisoner Clothing
+Prisoner Trousers
+STARTING ITEMS FOR PRISONER IN ELDEN RING
+Memory of Grace
+Players Choice of Keepsake
+ELDEN RING PRISONER NOTES & TIPS
+This class' stats are optimized for:
+Strength/Intelligence hybrid builds where Dexterity does not need raising any higher. If more Dexterity is required, it becomes tied Samurai.
+Dexterity/Intelligence hybrid builds where required Strength is between 10 and 12. Any lower, Astrologer becomes optimal. Any higher, it ties with Samurai
+The design seems influenced by Griffith/Femto from the Berserk manga and anime series.
+The best pick for Dexterity/Intelligence hybrid builds demanding 11 or more Strength. Astrologer outperforms at 10 strength or less.
+Though a more advanced playstyle, it's hard to argue that this Class has an exceptional loadout and stat spread. Not recommended for new players, but will shine in the hands of a Souls veteran.
+A good start for Dex + Int builds.

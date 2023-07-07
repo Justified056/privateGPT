@@ -1,0 +1,34 @@
+ELDEN RING CLASS NAME: Astrologer
+Astrologer is a starting Class in Elden Ring. The Astrologer has high Intelligence and Mind and some Dexterity. It starts the game level 6, with a Staff, a sword and small shield.
+ASTROLOGER STARTING ATTRIBUTES/STATS
+Rune Level 6
+Vigor 9
+Mind 15
+Endurance 9
+Strength 8
+Dexterity 12
+Intelligence 16
+Faith 7
+Arcane 9
+STARTING EQUIPMENT FOR ASTROLOGER ELDEN RING
+Glintstone Pebble
+Glintstone Arc
+Short Sword
+Astrologer's Staff
+Scripture Wooden Shield
+Astrologer Hood
+Astrologer Robe
+Astrologer Gloves
+Astrologer Trousers
+STARTING ITEMS FOR ASTROLOGER IN ELDEN RING
+Memory of Grace
+Players Choice of Keepsake
+ELDEN RING ASTROLOGER NOTES AND TIPS
+A very good mage setup that's easy to upgrade quickly due to access to spells and a good Staff early on. Excellent for new players and veterans alike.
+This class' stats are optimized for:
+Pure intelligence builds that do not plan to use melee weapons.
+Hybrid builds that include either of the other two casting stats - or both.
+Dexterity/Intelligence hybrid builds that require less than 10 Strength, after which Prisoner becomes optimal.
+Dedicated Intelligence/Faith build that primarily utilizes Sword of Night and Flame. Compared to the Confessor, Astrologer requires 4 more Strength in order to meet the Strength requirement of the weapon.
+This class replaces the Network Test's "Enchanted Knight" as a starter mage choice
+Has the lowest amount of Vigor out of the other 9 classes. Players who pick Astrologer must know when to pick their battles and use their ranged spells to their advantage.
