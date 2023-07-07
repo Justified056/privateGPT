@@ -29,8 +29,9 @@ Answer:
 QA_PROMPT = PromptTemplate(template=template, input_variables=["question", "context"])
 
 
-def get_chain(vectorstore):
+def get_chain(retriever):
     load_dotenv()
+    retriever.search_kwargs = {'k': 10}
     llm = ChatOpenAI(model="gpt-3.5-turbo", 
                      openai_api_key= os.environ.get('OPENAI_API_KEY'),
                      temperature=0)
@@ -45,7 +46,7 @@ def get_chain(vectorstore):
         prompt=CONDENSE_QUESTION_PROMPT,
     )
     return ConversationalRetrievalChain(
-        retriever=vectorstore.as_retriever(),
+        retriever=retriever,
         combine_docs_chain=doc_chain,
         question_generator=question_chain,
         return_source_documents=True

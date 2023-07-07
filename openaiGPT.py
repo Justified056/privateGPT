@@ -25,7 +25,7 @@ def main():
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
     db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
     index = VectorStoreIndexWrapper(vectorstore=db)
-    chain = get_chain(index.vectorstore) 
+    chain = get_chain(index.vectorstore.as_retriever()) 
 
     # Interactive questions and answers
     chat_history = []
@@ -39,24 +39,22 @@ def main():
         # Get the answer from the chain
         start = time.time()
         res = chain({"question": query, "chat_history": chat_history})
-        #answer, docs = res['answer'], [] if args.hide_source else res['source_documents']
-        answer = res['answer']
+        answer, docs = res['answer'], [] if args.hide_source else res['source_documents']
         end = time.time()
         chat_history.append((query, answer))
+        # Print the relevant sources used for the answer
+        for document in docs:
+            metaDataValuesDisplay = ""
+            for key, value in document.metadata.items():
+                metaDataValuesDisplay += f'{key}: {value}, '
+            print("\n> " + f'Embedding metadata: {metaDataValuesDisplay.rstrip(", ")}')
+            print(f'Content: {document.page_content}')
+
         # Print the result
         print("\n\n> Question:")
         print(query)
         print(f"\n> Answer (took {round(end - start, 2)} s.):")
         print(answer)
-
-        # Print the relevant sources used for the answer
-        """for document in docs:
-            metaDataValuesDisplay = ""
-            for key, value in document.metadata.items():
-                metaDataValuesDisplay += f'{key}: {value}, '
-            print("\n> " + f'Embedding metadata: {metaDataValuesDisplay.rstrip(", ")}')
-            print(f'Content: {document.page_content}')"""
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='openAi: Ask questions to your documents online, '
                                                  'using the power of OpenAis ChatGPT.')
