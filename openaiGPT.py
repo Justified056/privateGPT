@@ -1,23 +1,41 @@
 import os
-import sys
 from dotenv import load_dotenv
-import openai
-from langchain.chains import ConversationalRetrievalChain, RetrievalQA
-from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 import argparse
 import time
 from constants import CHROMA_SETTINGS
 from prompts import get_chain
+from datetime import datetime
 
 load_dotenv()
 
 embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME")
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
+
+def save_chat_history(chat_history):
+    # Get the current date
+    current_date = datetime.now().strftime("%Y%m%d")
+    
+    # Define the file name
+    file_name = f"chat_history_logs/openaigpt_{current_date}.txt"
+    
+    # Check if the file already exists
+    if os.path.exists(file_name):
+        # File exists, append to it
+        mode = "a"
+    else:
+        # File doesn't exist, create a new one
+        mode = "w"
+    
+    # Open the file in the appropriate mode
+    with open(file_name, mode) as file:
+        for query, answer in chat_history:
+            # Write the query and answer to the file
+            file.write(f"Query: {query}\nAnswer: {answer}\n")
+    
+    print(f"Chat history saved to {file_name}")
 
 def main():
     # Parse the command line arguments
@@ -32,6 +50,7 @@ def main():
     while True:
         query = input("\nEnter a query: ")
         if query == "exit":
+            save_chat_history(chat_history)
             break
         if query.strip() == "":
             continue
@@ -55,6 +74,7 @@ def main():
         print(query)
         print(f"\n> Answer (took {round(end - start, 2)} s.):")
         print(answer)
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='openAi: Ask questions to your documents online, '
                                                  'using the power of OpenAis ChatGPT.')
