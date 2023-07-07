@@ -18,6 +18,7 @@ CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
 
 template = """You are an AI assistant for answering questions about video games.
 You are given the following extracted parts of long documents and a question. Provide a conversational answer.
+If given enough context you may create an answer based on that context.
 If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
 If the question is not about a video game, politely inform them that you are tuned to only answer questions about video games.
 Question: {question}
@@ -31,7 +32,7 @@ QA_PROMPT = PromptTemplate(template=template, input_variables=["question", "cont
 
 def get_chain(retriever):
     load_dotenv()
-    retriever.search_kwargs = {'k': 10}
+    retriever.search_kwargs = {'k': 2}
     llm = ChatOpenAI(model="gpt-3.5-turbo", 
                      openai_api_key= os.environ.get('OPENAI_API_KEY'),
                      temperature=0)
