@@ -2,7 +2,7 @@ langchain
 gpt4all==0.3.4
 chromadb
 llama-cpp-python==0.1.50
-urllib3==2.0.2
+urllib3
 PyMuPDF==1.22.3
 python-dotenv==1.0.0
 unstructured==0.6.6
@@ -12,3 +12,5 @@ pandoc==2.3
 pypandoc==1.11
 tqdm==4.65.0
 openai
+beautifulsoup4
+requests
