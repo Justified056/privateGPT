@@ -32,7 +32,6 @@ QA_PROMPT = PromptTemplate(template=template, input_variables=["question", "cont
 
 def get_chain(retriever):
     load_dotenv()
-    retriever.search_kwargs = {'k': 2}
     llm = ChatOpenAI(model="gpt-3.5-turbo", 
                      openai_api_key= os.environ.get('OPENAI_API_KEY'),
                      temperature=0)

@@ -43,7 +43,9 @@ def main():
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
     db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
     index = VectorStoreIndexWrapper(vectorstore=db)
-    chain = get_chain(index.vectorstore.as_retriever()) 
+    # similarity search kwordargs search_kwargs = {'k': 10}
+    # similarity score threshold search_type="similarity_score_threshold", search_kwargs={"score_threshold": .7, "k": 10}
+    chain = get_chain(index.vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 10})) 
 
     # Interactive questions and answers
     chat_history = []
