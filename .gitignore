@@ -166,3 +166,4 @@ source_documents/
 source_documents_to_not_be_ingested/
 chat_history_logs/
 crawler_text/
+qdrantdb/
