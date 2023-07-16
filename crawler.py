@@ -86,7 +86,7 @@ def get_domain_hyperlinks(local_domain, url):
         if re.search(HTTP_URL_PATTERN, link):
             # Parse the URL and check if the domain is the same
             url_obj = urlparse(link)
-            if url_obj.netloc == local_domain and url_obj.path == ign_wiki_path:
+            if url_obj.netloc == local_domain and url_obj.path.startswith('/' + ign_wiki_path):
                 clean_link = link
 
         # If the link is not a URL, check if it is a relative link
@@ -152,28 +152,50 @@ def crawl(url):
 
         # Get the next URL from the queue
         url = queue.pop()
+        WIKI_SECTION_TAG_TO_SCRAP = 'section', {'class': 'jsx-1266389546 jsx-380427680 jsx-28683165 wiki-section wiki-html'}
+        TAGS_TO_SCRAPE = ['p','ul','table']
         print(url) # for debugging and to see the progress
         try:
           time.sleep(1) # being nice to the server
           # Save text from the url to a <url>.txt file
           with open('crawler_text/'+local_domain+'/'+sanitize_file_name(url[8:].replace("/", "_") + ".txt"), "w", encoding="UTF-8") as f:
 
-              # Get the text from the URL using BeautifulSoup
-              response = requests.get(url, headers=HEADERS)
-              if response.ok:
+            # Get the text from the URL using BeautifulSoup
+            response = requests.get(url, headers=HEADERS)
+            if response.ok:
                 soup = BeautifulSoup(response.text, "html.parser")
 
-                # Get the text but remove the tags
-                text = soup.get_text()
-
-                # If the crawler gets to a page that requires JavaScript, it will stop the crawl
-                if ("You need to enable JavaScript to run this app." in text):
-                    print("Unable to parse page " + url + " due to JavaScript being required")
+                SCRAPED_WIKI_SECTIONS = soup.find_all(WIKI_SECTION_TAG_TO_SCRAP)
+                SCRAPED_WIKI_SECTION_INNER_TAGS = [tag.find_all(TAGS_TO_SCRAPE) for tag in SCRAPED_WIKI_SECTIONS] 
                 
-                # Otherwise, write the text to the file in the text directory
-                f.write(remove_newlines(text))
-              else:
-                  print(f'Unable to scrape url: {url}')
+                for items in SCRAPED_WIKI_SECTION_INNER_TAGS:
+                    for item in items:
+                        if item.tag == 'table':
+                            # Extract the rows
+                            rows = item.find_all('tr')
+
+                            for i in range(0, len(rows), 2):  # loop over rows, assuming each pair of rows is a header-data pair
+                                if i + 1 < len(rows):  # Check if there is a second row
+                                    # Extract the headers from the first row and the data from the second row
+                                    headers = [th.text for th in rows[i].find_all('th')]
+                                    data = [td.text for td in rows[i+1].find_all('td')]
+
+                                    # Combine the headers and data to create a dictionary for the row
+                                    row_data = dict(zip(headers, data))
+
+                                    # Write the row data to the file
+                                    for header, cell in row_data.items():
+                                        f.write(f'{header}: {remove_newlines(cell)}\n')
+                                    
+                                    # Write a blank line to separate rows
+                                    f.write('\n')
+                                else:  # If there is no second row, write the data from the first row
+                                    data = [td.text for td in rows[i].find_all('td')]
+                                    f.write('\n'.join(map(remove_newlines, data)) + '\n')
+                        else:
+                            f.write(remove_newlines(item.text) + '\n')
+            else:
+                print(f'Unable to scrape url: {url}')
 
           # Get the hyperlinks from the URL and add them to the queue
           for link in get_domain_hyperlinks(local_domain, url):
