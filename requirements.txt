@@ -15,3 +15,4 @@ openai
 beautifulsoup4
 requests
 qdrant-client
+jsonschema
