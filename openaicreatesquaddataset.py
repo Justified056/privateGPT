@@ -66,7 +66,6 @@ def move_document_to_new_folder():
             shutil.move(processed_file_path, post_processed_directory)
         else:
             print(f"No processed file path when calling function to move. Exiting.")
-            exit(0)
     except IOError as e:
         print(f"Error moving file post processing: IOError: {e}")
     except shutil.Error as e:
@@ -104,12 +103,10 @@ while files_processed < number_of_files_to_process:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
             except json.decoder.JSONDecodeError:
               print('chatGPT returned invalid JSON')
-              exit(0)
             except jsonschema.exceptions.ValidationError as ve:
-              print('JSON doesn\'t match the schema. Details:', ve)
-              exit(0)
+              print('JSON from chatGPT doesn\'t match the schema. Details:', ve)
         files_processed += 1
         move_document_to_new_folder()
     except Exception as e:
-        print(f"Exception during processing: {e}")
+        print(f"Exception processing file: {processed_file_path} Exception: {e}")
         exit(0)
