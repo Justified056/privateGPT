@@ -14,7 +14,7 @@ CHROMA_SETTINGS = Settings(
         anonymized_telemetry=False
 )
 
-SQUAD_V2_JSON_SCHEMA = """{
+SQUAD_V2_JSON_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
@@ -23,9 +23,6 @@ SQUAD_V2_JSON_SCHEMA = """{
             "items": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string"
-                    },
                     "paragraphs": {
                         "type": "array",
                         "items": {
@@ -39,60 +36,79 @@ SQUAD_V2_JSON_SCHEMA = """{
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "id": {
-                                                "type": "string"
-                                            },
-                                            "question": {
-                                                "type": "string"
-                                            },
                                             "answers": {
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
                                                     "properties": {
-                                                        "text": {
-                                                            "type": "string"
-                                                        },
                                                         "answer_start": {
                                                             "type": "integer"
+                                                        },
+                                                        "text": {
+                                                            "type": "string"
                                                         }
                                                     },
-                                                    "required": ["text", "answer_start"]
+                                                    "required": [
+                                                        "text",
+                                                        "answer_start"
+                                                    ]
                                                 }
                                             },
-                                            "is_impossible": {
-                                                "type": "boolean"
+                                            "id": {
+                                                "type": "string"
                                             },
                                             "plausible_answers": {
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
                                                     "properties": {
-                                                        "text": {
-                                                            "type": "string"
-                                                        },
                                                         "answer_start": {
                                                             "type": "integer"
+                                                        },
+                                                        "text": {
+                                                            "type": "string"
                                                         }
                                                     },
-                                                    "required": ["text", "answer_start"]
+                                                    "required": [
+                                                        "text",
+                                                        "answer_start"
+                                                    ]
                                                 }
+                                            },
+                                            "question": {
+                                                "type": "string"
                                             }
                                         },
-                                        "required": ["id", "question", "answers", "is_impossible"]
+                                        "required": [
+                                            "id",
+                                            "question",
+                                            "answers"
+                                        ]
                                     }
                                 }
                             },
-                            "required": ["context", "qas"]
+                            "required": [
+                                "context",
+                                "qas"
+                            ]
                         }
+                    },
+                    "title": {
+                        "type": "string"
                     }
                 },
-                "required": ["title", "paragraphs"]
+                "required": [
+                    "title",
+                    "paragraphs"
+                ]
             }
         },
         "version": {
             "type": "string"
         }
     },
-    "required": ["data", "version"]
-}"""
+    "required": [
+        "data",
+        "version"
+    ]
+}

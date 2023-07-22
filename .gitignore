@@ -168,3 +168,4 @@ chat_history_logs/
 crawler_text/
 qdrantdb/
 processed_dataset_files/
+squad_data_sets/
