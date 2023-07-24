@@ -18,97 +18,36 @@ SQUAD_V2_JSON_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "data": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "paragraphs": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "context": {
-                                    "type": "string"
-                                },
-                                "qas": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "answers": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "answer_start": {
-                                                            "type": "integer"
-                                                        },
-                                                        "text": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "text",
-                                                        "answer_start"
-                                                    ]
-                                                }
-                                            },
-                                            "id": {
-                                                "type": "string"
-                                            },
-                                            "plausible_answers": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "answer_start": {
-                                                            "type": "integer"
-                                                        },
-                                                        "text": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "text",
-                                                        "answer_start"
-                                                    ]
-                                                }
-                                            },
-                                            "question": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "required": [
-                                            "id",
-                                            "question",
-                                            "answers"
-                                        ]
-                                    }
-                                }
-                            },
-                            "required": [
-                                "context",
-                                "qas"
-                            ]
-                        }
-                    },
-                    "title": {
-                        "type": "string"
+        "answers": {
+            "type": "object",
+            "properties": {
+                "answer_start": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
                     }
                 },
-                "required": [
-                    "title",
-                    "paragraphs"
-                ]
-            }
+                "text": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": ["answer_start", "text"]
         },
-        "version": {
+        "context": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        },
+        "question": {
+            "type": "string"
+        },
+        "title": {
             "type": "string"
         }
     },
-    "required": [
-        "data",
-        "version"
-    ]
+    "required": ["answers", "context", "id", "question"]
 }

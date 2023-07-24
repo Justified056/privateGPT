@@ -8,10 +8,11 @@ import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 from typing import List
-import shutil
+import pickle
 import json
 import jsonschema
 from jsonschema import validate
+from pathlib import Path
 
 load_dotenv()
 
@@ -21,15 +22,34 @@ squad_data_set_directory = os.environ.get('SQUAD_DATA_SETS_DIR', 'squad_data_set
 post_processed_directory = os.environ.get('POST_PROCESSED_DATASET_DIR', 'processed_dataset_files')
 number_of_files_to_process = int(os.environ.get('NUMBER_OF_FILES_TO_CONVERT_TO_DATASET', 1))
 open_api_key = openai_api_key= os.environ.get('PROJECT_OPENAI_API_KEY', '')
-print(open_api_key)
 files_processed = 0
-chunk_size = 500
-chunk_overlap = 50
-processed_file_path = ""
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
+print(f"Loading documents from {source_directory}")
+SOURCE_FILES = os.listdir(source_directory)
+# Sort files in lexicographical order (alphabetical order)
+SOURCE_FILES.sort()
 
 #This will be the starting name of the file added to the squad_data_set_directory
+game_name = "Elden Ring"
 game_being_processed_file_prefix = "elden_ring"
 game_being_processed_file_name = f"{squad_data_set_directory}/{game_being_processed_file_prefix}_walkthrough_as_squad"
+
+def load_processed_files_list() -> list[str]:
+    try:
+        file_to_load = f"{post_processed_directory}/{game_name}.pkl"
+        print(f"Loading processed file list from {file_to_load}")
+        with open(file_to_load, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        print("Could not find {file_to_load} while loading processed file list.")
+        return []
+
+def save_processed_files_list(list_to_save:list[str]):
+    file_to_save = f"{post_processed_directory}/{game_name}.pkl" 
+    print(f"Saving processed file list to {file_to_save}.")
+    with open(t, 'wb') as f:
+        pickle.dump(list_to_save, f)
 
 def load_squad_data_from_file():
     try:
@@ -45,17 +65,13 @@ def save_squad_data_to_file (existing_data):
         print(f"Saving data to {game_being_processed_file_name}")
         json.dump(existing_data, f)      
 
-def get_document_contents_from_dir() -> str:
-    print(f"Loading documents from {source_directory}")
-    files = os.listdir(source_directory)
-    if not files:  # The directory is empty
+def get_document_contents_from_dir(processed_files_list:list[str]) -> str:
+    if not SOURCE_FILES:  # The directory is empty
         print(f"No documents found in {source_directory}")
         return None
-
-    # Sort files in lexicographical order (alphabetical order)
-    files.sort()
-
-    processed_file_path = os.path.join(source_directory, files[0])
+    current_file_name = list[str](filter(lambda x: x not in processed_files_list, SOURCE_FILES))[0]
+    processed_file_path = os.path.join(source_directory, current_file_name)
+    processed_files_list.append(current_file_name)
     print(f"Processing file: {processed_file_path}")
     with open(processed_file_path, 'r') as file:
         content = file.read()
@@ -63,68 +79,51 @@ def get_document_contents_from_dir() -> str:
     print(f"Found content length: {len(content)} from {processed_file_path}")
     return content
     
-def process_document() -> List[Document]:
+def process_document(processed_files_list) -> List[Document]:
     """
     Load document and split in chunks
     """
    
-    document_contents = get_document_contents_from_dir()
+    document_contents = get_document_contents_from_dir(processed_files_list)
     if not document_contents:
         print("Exiting due to no document content found")
         exit(1)
     
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     texts = text_splitter.split_text(document_contents)
-    print(f"Split into {len(texts)} chunks of text (max. {chunk_size} tokens each)")
+    print(f"Split into {len(texts)} chunks of text (max. {CHUNK_SIZE} tokens each)")
     return texts
 
-# This operation can fail due to user permissions
-def move_document_to_new_folder():
-    try:
-        if len(processed_file_path) > 0:
-            print(f"Moving {processed_file_path} to {post_processed_directory}")
-            shutil.move(processed_file_path, post_processed_directory)
-        else:
-            print(f"No processed file path when calling function to move. Exiting.")
-    except IOError as e:
-        print(f"Error moving file post processing: IOError: {e}")
-        exit(1)
-    except shutil.Error as e:
-        print(f"Error moving file post processing: ShutilError: {e}")
-        exit(1)
-    except PermissionError as e:
-        print(f"Error moving file post processing: PermissionError: {e}")
-        exit(1)
-
-def create_ai_chain(): 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", 
+def create_ai_gpt3_5_structured_output_chain(): 
+    llm = ChatOpenAI(model="gpt-3.5-turbo",
                     openai_api_key=open_api_key,
                     temperature=0)
 
     prompt_msgs = [
         SystemMessage(
-            content="You are a intelligent Data Scientist. You are preparing text for training a BERT AI model by creating a SQUAD version 2.0 data set. You will make as many unique question and answers as you can from the input."
+            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You take extra care in following the JSON schema and provide values for every required property in the schema."
         ),
         HumanMessage(
-            content="Use the given JSON schema to extract information from the following input:"
+            content="Use the given input to extract information and convert it to the correct format: "
         ),
         HumanMessagePromptTemplate.from_template("{input}"),
-        HumanMessage(content="Tips: Make sure to answer in the JSON schema format provided. Always provide a random GUUID for the id property."),
+        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string. The id property must be populated with a random UUID."),
     ]
 
     prompt = ChatPromptTemplate(messages=prompt_msgs)
-    return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt) # set verbose=True if you want some debug. Pass it to that function to the left
+    return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt, verbose=True) # set verbose=True if you want some debug. Pass it to that function to the left
 
 # Make the chain
-chain = create_ai_chain()
+gpt_3_5_chain = create_ai_gpt3_5_structured_output_chain()
 #Get existing data from last run
 existing_squad_data = load_squad_data_from_file()
+processed_files = load_processed_files_list()
 
 while files_processed < number_of_files_to_process:
     try:
-        documents = process_document()  
+        documents = process_document(processed_files)  
         for document in documents:
-            res = chain.run(document) # .run simply returns the output as a string
+            res = gpt_3_5_chain.run(document) # .run simply returns the output as a string
             print("Validating response from chatGPT returned correct JSON schema.")
             try:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
@@ -134,11 +133,13 @@ while files_processed < number_of_files_to_process:
             except jsonschema.exceptions.ValidationError as ve:
               print('JSON from chatGPT doesn\'t match the schema. Details:', ve)
               exit(1)
+            res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
             existing_squad_data.append(res)   
-        files_processed += 1 
-        move_document_to_new_folder()
+        files_processed += 1
     except Exception as e:
-        print(f"Exception processing file: {processed_file_path} Exception: {e}")
+        print(f"Exception processing file. Exception: {e}")
         exit(1)
 
 save_squad_data_to_file(existing_squad_data)
+save_processed_files_list(processed_files)
+print("Done")
