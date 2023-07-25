@@ -25,25 +25,27 @@ SQUAD_V2_JSON_SCHEMA = {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    }
+                    },
+                    "description": "Answer location in the context. The value is index within the context string. Context index values being at 0. Must be populated"
                 },
                 "text": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "description": "The answer text from the context property. Must be populated."
                 }
             },
-            "required": ["answer_start", "text"]
+            "required": ["answer_start", "text"],
+            "description": "Answers for the question and context for the question go here. This is an object not an array."
         },
         "context": {
-            "type": "string"
+            "type": "string",
+            "description": "Context used to generate the question and answers from. It comes from the user input provided to you. Must be populated."
         },
         "question": {
-            "type": "string"
-        },
-        "title": {
-            "type": "string"
+            "type": "string",
+            "description": "Question generated from the context. Must be populated."
         }
     },
     "required": ["answers", "context", "question"]
