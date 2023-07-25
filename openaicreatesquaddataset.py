@@ -48,7 +48,7 @@ def load_processed_files_list() -> list[str]:
 def save_processed_files_list(list_to_save:list[str]):
     file_to_save = f"{post_processed_directory}/{game_name}.pkl" 
     print(f"Saving processed file list to {file_to_save}.")
-    with open(t, 'wb') as f:
+    with open(file_to_save, 'wb') as f:
         pickle.dump(list_to_save, f)
 
 def load_squad_data_from_file():
@@ -111,7 +111,7 @@ def create_ai_gpt3_5_structured_output_chain():
     ]
 
     prompt = ChatPromptTemplate(messages=prompt_msgs)
-    return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt, verbose=True) # set verbose=True if you want some debug. Pass it to that function to the left
+    return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt) # set verbose=True if you want some debug. Pass it to that function to the left
 
 # Make the chain
 gpt_3_5_chain = create_ai_gpt3_5_structured_output_chain()
@@ -123,7 +123,8 @@ while files_processed < number_of_files_to_process:
     try:
         documents = process_document(processed_files)  
         for document in documents:
-            res = gpt_3_5_chain.run(document) # .run simply returns the output as a string
+            res = gpt_3_5_chain.run(document) # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that
+            res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
             print("Validating response from chatGPT returned correct JSON schema.")
             try:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
@@ -132,11 +133,11 @@ while files_processed < number_of_files_to_process:
               exit(1)
             except jsonschema.exceptions.ValidationError as ve:
               print('JSON from chatGPT doesn\'t match the schema. Details:', ve)
-              exit(1)
-            res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
+              exit(1)                 
             existing_squad_data.append(res)   
         files_processed += 1
     except Exception as e:
+        #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here     
         print(f"Exception processing file. Exception: {e}")
         exit(1)
 
