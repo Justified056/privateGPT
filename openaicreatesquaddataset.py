@@ -1,9 +1,10 @@
 from langchain.chains.openai_functions import create_structured_output_chain
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import HumanMessage, SystemMessage
 from dotenv import load_dotenv
-from constants import SQUAD_V2_JSON_SCHEMA
+from constants import SQUAD_V2_JSON_SCHEMA, SQUAD_V2_JSON_ARRAY_SCHEMA
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
@@ -113,6 +114,29 @@ def create_ai_gpt3_5_structured_output_chain():
     prompt = ChatPromptTemplate(messages=prompt_msgs)
     return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt) # set verbose=True if you want some debug. Pass it to that function to the left
 
+def create_ai_gpt3_5_manual_json_schema_chain(): 
+    llm = ChatOpenAI(model="gpt-3.5-turbo",
+                    openai_api_key=open_api_key,
+                    temperature=0)
+
+    prompt_msgs = [
+        SystemMessage(
+            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You only response back to the user using the format provided to you."
+        ),
+        HumanMessage(
+            content="Use the given JSON schema to format your results back to the user: "
+        ),
+        HumanMessagePromptTemplate.from_template("{schema}"),
+        HumanMessage(
+            content="Use the given input to extract information and convert it to the correct format: "
+        ),
+        HumanMessagePromptTemplate.from_template("{input}"),
+        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string."),
+    ]
+
+    prompt = ChatPromptTemplate(messages=prompt_msgs)
+    return LLMChain(llm=llm, prompt=prompt) 
+
 # Make the chain
 gpt_3_5_chain = create_ai_gpt3_5_structured_output_chain()
 #Get existing data from last run
@@ -124,7 +148,8 @@ while files_processed < number_of_files_to_process:
         documents = process_document(processed_files)  
         for document in documents:
             print("Sending gpt a chunk to process.")
-            res = gpt_3_5_chain.run(document) # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that
+            # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that       
+            res = gpt_3_5_chain.run(document)
             res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
             res['id'] = str(uuid.uuid4())
             print("Validating response from chatGPT returned correct JSON schema.")
@@ -136,10 +161,10 @@ while files_processed < number_of_files_to_process:
             except jsonschema.exceptions.ValidationError as ve:
               print('JSON from chatGPT doesn\'t match the schema. Details:', ve)
               exit(1)                 
-            existing_squad_data.append(res)   
+            existing_squad_data.append(res)
         files_processed += 1
     except Exception as e:
-        #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here     
+        #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here   
         print(f"Exception processing file. Exception: {e}")
         exit(1)
 
