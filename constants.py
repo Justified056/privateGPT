@@ -50,3 +50,38 @@ SQUAD_V2_JSON_SCHEMA = {
     },
     "required": ["answers", "context", "question"]
 }
+
+SQUAD_V2_JSON_ARRAY_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "answers": {
+                "type": "object",
+                "properties": {
+                    "answer_start": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "text": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["answer_start", "text"]
+            },
+            "context": {
+                "type": "string"
+            },
+            "question": {
+                "type": "string"
+            }
+        },
+        "required": ["answers", "context", "question"]
+    }
+}

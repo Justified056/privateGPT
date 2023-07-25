@@ -12,7 +12,7 @@ import pickle
 import json
 import jsonschema
 from jsonschema import validate
-from pathlib import Path
+import uuid
 
 load_dotenv()
 
@@ -107,7 +107,7 @@ def create_ai_gpt3_5_structured_output_chain():
             content="Use the given input to extract information and convert it to the correct format: "
         ),
         HumanMessagePromptTemplate.from_template("{input}"),
-        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string. The id property must be populated with a random UUID."),
+        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string."),
     ]
 
     prompt = ChatPromptTemplate(messages=prompt_msgs)
@@ -123,8 +123,10 @@ while files_processed < number_of_files_to_process:
     try:
         documents = process_document(processed_files)  
         for document in documents:
+            print("Sending gpt a chunk to process.")
             res = gpt_3_5_chain.run(document) # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that
             res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
+            res['id'] = str(uuid.uuid4())
             print("Validating response from chatGPT returned correct JSON schema.")
             try:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
