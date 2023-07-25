@@ -39,9 +39,6 @@ SQUAD_V2_JSON_SCHEMA = {
         "context": {
             "type": "string"
         },
-        "id": {
-            "type": "string"
-        },
         "question": {
             "type": "string"
         },
@@ -49,5 +46,5 @@ SQUAD_V2_JSON_SCHEMA = {
             "type": "string"
         }
     },
-    "required": ["answers", "context", "id", "question"]
+    "required": ["answers", "context", "question"]
 }
