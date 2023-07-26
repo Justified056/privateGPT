@@ -102,13 +102,13 @@ def create_ai_gpt3_5_structured_output_chain():
 
     prompt_msgs = [
         SystemMessage(
-            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You take extra care in following the JSON schema and provide values for every required property in the schema."
+            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You only return valid JSON and the JSON should be valid when return to a python application when json.loads() is called on the response."
         ),
         HumanMessage(
             content="Use the given input to extract information and convert it to the correct format: "
         ),
         HumanMessagePromptTemplate.from_template("{input}"),
-        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string."),
+        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string. The answers property is an object and must never be populated as an array of objects. The answer_start and text array properties must always be populated with a value and cannot be populated as an empty array."),
     ]
 
     prompt = ChatPromptTemplate(messages=prompt_msgs)
