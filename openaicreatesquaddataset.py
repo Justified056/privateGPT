@@ -1,10 +1,10 @@
-from langchain.chains.openai_functions import create_structured_output_chain
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
+from pydantic_classes.squadclasses import SquadDataItem
+from langchain.output_parsers import PydanticOutputParser, OutputFixingParser, RetryWithErrorOutputParser
 from dotenv import load_dotenv
-from constants import SQUAD_V2_JSON_SCHEMA, SQUAD_V2_JSON_ARRAY_SCHEMA
+from constants import SQUAD_V2_JSON_SCHEMA
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
@@ -99,23 +99,28 @@ def create_ai_gpt3_5_structured_output_chain():
     llm = ChatOpenAI(model="gpt-3.5-turbo",
                     openai_api_key=open_api_key,
                     temperature=0)
+    
+    pydantic_parser = PydanticOutputParser(pydantic_object=SquadDataItem)
+    format_instructions = pydantic_parser.get_format_instructions()
+    
+    template_string = """You are a world class algorithm for extracting question and answer data from user input.
 
-    prompt_msgs = [
-        SystemMessage(
-            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You only return valid JSON and the JSON should be valid when return to a python application when json.loads() is called on the response."
-        ),
-        HumanMessage(
-            content="Use the given input to extract information and convert it to the correct format: "
-        ),
-        HumanMessagePromptTemplate.from_template("{input}"),
-        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string. The answers property is an object and must never be populated as an array of objects. The answer_start and text array properties must always be populated with a value and cannot be populated as an empty array."),
-    ]
+    Take the user input below delimited by triple backticks and use it to create questions and answers.
 
-    prompt = ChatPromptTemplate(messages=prompt_msgs)
-    return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt) # set verbose=True if you want some debug. Pass it to that function to the left
+    user input: ```{user_input}```
+
+    {format_instructions}
+    """
+    prompt = ChatPromptTemplate(messages=[HumanMessagePromptTemplate.from_template(template_string)],
+                                input_variables=["user_input"],
+                                partial_variables={"format_instructions": format_instructions},
+                                output_parser=pydantic_parser)
+
+    # set verbose=True if you want some debug. Pass it to that function to the left
+    return LLMChain(llm=llm, prompt=prompt, output_parser=pydantic_parser), OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm), RetryWithErrorOutputParser.from_llm(parser=pydantic_parser, llm=llm)
 
 # Make the chain
-gpt_3_5_chain = create_ai_gpt3_5_structured_output_chain()
+gpt_3_5_chain, gpt_3_5_output_fixing_parser, gpt_3_5_retry_with_error_parser = create_ai_gpt3_5_structured_output_chain()
 #Get existing data from last run
 existing_squad_data = load_squad_data_from_file()
 processed_files = load_processed_files_list()
@@ -125,23 +130,33 @@ while files_processed < number_of_files_to_process:
         documents = process_document(processed_files)  
         for document in documents:
             print("Sending gpt a chunk to process.")
-            # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that       
+            res:SquadDataItem     
             try:
-                res = gpt_3_5_chain.run(document)
-                res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
-                res['id'] = str(uuid.uuid4())
-            except Exception as e:
-                print("GPT had an error with it's response. Not sure how to debug at the moment. Skip for now.")
-            print("Validating response from chatGPT returned correct JSON schema.")
+                res = gpt_3_5_chain.run(user_input=document)
+            except:
+                print("GPT sent back incorrect format. Trying the fixing parser.")
+                try:
+                    res = gpt_3_5_output_fixing_parser.parse(res)
+                except:
+                    print("Still can't fix it. Retrying as an error.")
+                    res = gpt_3_5_retry_with_error_parser.parse_with_prompt(res, gpt_3_5_chain.prompt.format_prompt(user_input=document))
+            res.title = game_name
+            res.id = str(uuid.uuid4())
+            res_asdict = res.dict()            
             try:
-              validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
+              print("Validating response from chatGPT returned correct schema.")
+              validate(instance=res_asdict, schema=SQUAD_V2_JSON_SCHEMA)
+              existing_squad_data.append(res_asdict)
             except json.decoder.JSONDecodeError:
-              print('chatGPT returned invalid JSON')
+                print('chatGPT returned invalid JSON')
+                exit(1)
             except jsonschema.exceptions.ValidationError as ve:
-              print('JSON from chatGPT doesn\'t match the schema. Details:', ve) # Example error message: JSON from chatGPT doesn't match the schema. Details: 'question' is a required property               
-            existing_squad_data.append(res)
+                print('JSON from chatGPT doesn\'t match the schema. Details:', ve) # Example error message: JSON from chatGPT doesn't match the schema. Details: 'question' is a required property               
+                exit(1)              
+                
         files_processed += 1
     except Exception as e:
+        print(res)
         #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here   
         print(f"Exception processing file. Exception: {e}")
         exit(1)
