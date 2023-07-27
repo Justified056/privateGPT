@@ -114,29 +114,6 @@ def create_ai_gpt3_5_structured_output_chain():
     prompt = ChatPromptTemplate(messages=prompt_msgs)
     return create_structured_output_chain(SQUAD_V2_JSON_SCHEMA, llm, prompt) # set verbose=True if you want some debug. Pass it to that function to the left
 
-def create_ai_gpt3_5_manual_json_schema_chain(): 
-    llm = ChatOpenAI(model="gpt-3.5-turbo",
-                    openai_api_key=open_api_key,
-                    temperature=0)
-
-    prompt_msgs = [
-        SystemMessage(
-            content="You are a world class algorithm for extracting information into JSON based on the JSON schema provided to you. You only response back to the user using the format provided to you."
-        ),
-        HumanMessage(
-            content="Use the given JSON schema to format your results back to the user: "
-        ),
-        HumanMessagePromptTemplate.from_template("{schema}"),
-        HumanMessage(
-            content="Use the given input to extract information and convert it to the correct format: "
-        ),
-        HumanMessagePromptTemplate.from_template("{input}"),
-        HumanMessage(content=f"Tips: Make sure to answer in the correct JSON schema provided. The question property from the JSON schema must be populated with a question, It cannot be an empty string."),
-    ]
-
-    prompt = ChatPromptTemplate(messages=prompt_msgs)
-    return LLMChain(llm=llm, prompt=prompt) 
-
 # Make the chain
 gpt_3_5_chain = create_ai_gpt3_5_structured_output_chain()
 #Get existing data from last run
@@ -160,10 +137,8 @@ while files_processed < number_of_files_to_process:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
             except json.decoder.JSONDecodeError:
               print('chatGPT returned invalid JSON')
-              exit(1)
             except jsonschema.exceptions.ValidationError as ve:
-              print('JSON from chatGPT doesn\'t match the schema. Details:', ve)
-              exit(1)                 
+              print('JSON from chatGPT doesn\'t match the schema. Details:', ve)               
             existing_squad_data.append(res)
         files_processed += 1
     except Exception as e:
