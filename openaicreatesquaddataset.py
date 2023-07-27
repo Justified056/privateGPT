@@ -149,9 +149,12 @@ while files_processed < number_of_files_to_process:
         for document in documents:
             print("Sending gpt a chunk to process.")
             # .run returns a str but because we're gettin json, python always thinks its a dict...or gpt is returning it as a python dict, even though I didn't tell it to do that       
-            res = gpt_3_5_chain.run(document)
-            res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
-            res['id'] = str(uuid.uuid4())
+            try:
+                res = gpt_3_5_chain.run(document)
+                res['title'] = game_name # I could not get gpt to add this property for some reason. It would leave it out randomly, even if I told it to add it.
+                res['id'] = str(uuid.uuid4())
+            except Exception as e:
+                print("GPT had an error with it's response. Not sure how to debug at the moment. Skip for now.")
             print("Validating response from chatGPT returned correct JSON schema.")
             try:
               validate(instance=res, schema=SQUAD_V2_JSON_SCHEMA)
