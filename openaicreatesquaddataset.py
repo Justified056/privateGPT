@@ -14,6 +14,7 @@ import json
 import jsonschema
 from jsonschema import validate
 import uuid
+import traceback
 
 load_dotenv()
 
@@ -156,7 +157,7 @@ while files_processed < number_of_files_to_process:
                 
         files_processed += 1
     except Exception as e:
-        print(res)
+        print(traceback.format_exc())
         #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here   
         print(f"Exception processing file. Exception: {e}")
         exit(1)
