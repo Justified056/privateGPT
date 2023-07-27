@@ -138,7 +138,7 @@ while files_processed < number_of_files_to_process:
             except json.decoder.JSONDecodeError:
               print('chatGPT returned invalid JSON')
             except jsonschema.exceptions.ValidationError as ve:
-              print('JSON from chatGPT doesn\'t match the schema. Details:', ve)               
+              print('JSON from chatGPT doesn\'t match the schema. Details:', ve) # Example error message: JSON from chatGPT doesn't match the schema. Details: 'question' is a required property               
             existing_squad_data.append(res)
         files_processed += 1
     except Exception as e:
