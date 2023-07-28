@@ -21,8 +21,8 @@ class SquadDataItem(BaseModel):
     answers: SquadAnswers = Field(description="Answers for the question.")
     context: str = Field(description="Context used to generate the question and answers from. It comes from the user input provided to you.")
     question: str = Field(description="Question generated from the user input.")
-    title: str = Field(description="Do not set this property. The user will provide a value.")
-    id: str = Field(description="Do not set this property. The user will provide a value.")
+    title: str = Field(description="Title of data set")
+    id: str = Field(description="Identifying field for question.")
 
     @validator('context')
     def check_context(cls, field):

@@ -104,6 +104,8 @@ def create_ai_gpt3_5_structured_output_chain():
     format_instructions = pydantic_parser.get_format_instructions()
     
     template_string = """You are a world class algorithm for extracting question and answer data from user input.
+    
+    You only return the requested ouput schema and nothing more.
 
     Take the user input below delimited by triple backticks and use it to create questions and answers.
 
