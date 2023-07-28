@@ -101,7 +101,21 @@ def create_ai_gpt3_5_structured_output_chain():
                     temperature=0)
     
     pydantic_parser = PydanticOutputParser(pydantic_object=SquadDataItem)
-    format_instructions = pydantic_parser.get_format_instructions()
+    format_instructions = """The output must be formatted as a JSON instance that conforms to the JSON example below.
+                             You must always generate your own JSON from the user input that conforms to the JSON schema.
+                             Never return the example output given to you below. 
+                             EXAMPLE INPUT: Heading to the left you'll see a deactivated Pendulum Statue with a fork in the path.
+                             EXAMPLE OUTPUT:
+                             {
+                                "title": "Enter Title Here",
+                                "id": "Unique_ID",
+                                "context": "Heading to the left you'll see a deactivated Pendulum Statue with a fork in the path.",
+                                "question": "What can be found on the left?",
+                                "answers": {
+                                                "answer_start": [28],
+                                                "text": ["a deactivated Pendulum Statue"]
+                                            }
+                             }"""# used to call this to get this before pydantic_parser.get_format_instructions()
     
     template_string = """You are a world class algorithm for extracting question and answer data from user input.
     
@@ -119,7 +133,7 @@ def create_ai_gpt3_5_structured_output_chain():
                                 output_parser=pydantic_parser)
 
     # set verbose=True if you want some debug. Pass it to that function to the left
-    return LLMChain(llm=llm, prompt=prompt, output_parser=pydantic_parser, verbose=True), OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm), RetryWithErrorOutputParser.from_llm(parser=pydantic_parser, llm=llm)
+    return LLMChain(llm=llm, prompt=prompt, output_parser=pydantic_parser), OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm), RetryWithErrorOutputParser.from_llm(parser=pydantic_parser, llm=llm)
 
 # Make the chain
 gpt_3_5_chain, gpt_3_5_output_fixing_parser, gpt_3_5_retry_with_error_parser = create_ai_gpt3_5_structured_output_chain()
@@ -143,7 +157,8 @@ while files_processed < number_of_files_to_process:
                     res = gpt_3_5_retry_with_error_parser.parse_with_prompt(res, gpt_3_5_chain.prompt.format_prompt(user_input=document))
             res.title = game_name
             res.id = str(uuid.uuid4())
-            res_asdict = res.dict()               
+            res_asdict = res.dict()
+            existing_squad_data.append(res_asdict)               
         files_processed += 1
     except Exception as e:
         print(traceback.format_exc())
