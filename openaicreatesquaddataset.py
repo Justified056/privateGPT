@@ -105,7 +105,7 @@ def create_ai_gpt3_5_structured_output_chain():
     
     template_string = """You are a world class algorithm for extracting question and answer data from user input.
     
-    You only return the requested ouput schema and nothing more.
+    You return only the extracted output in the correct JSON format provided to you.
 
     Take the user input below delimited by triple backticks and use it to create questions and answers.
 
