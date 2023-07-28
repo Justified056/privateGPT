@@ -12,7 +12,6 @@ from typing import List
 import pickle
 import json
 import jsonschema
-from jsonschema import validate
 import uuid
 import traceback
 
@@ -118,7 +117,7 @@ def create_ai_gpt3_5_structured_output_chain():
                                 output_parser=pydantic_parser)
 
     # set verbose=True if you want some debug. Pass it to that function to the left
-    return LLMChain(llm=llm, prompt=prompt, output_parser=pydantic_parser), OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm), RetryWithErrorOutputParser.from_llm(parser=pydantic_parser, llm=llm)
+    return LLMChain(llm=llm, prompt=prompt, output_parser=pydantic_parser, verbose=True), OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm), RetryWithErrorOutputParser.from_llm(parser=pydantic_parser, llm=llm)
 
 # Make the chain
 gpt_3_5_chain, gpt_3_5_output_fixing_parser, gpt_3_5_retry_with_error_parser = create_ai_gpt3_5_structured_output_chain()
@@ -130,8 +129,7 @@ while files_processed < number_of_files_to_process:
     try:
         documents = process_document(processed_files)  
         for document in documents:
-            print("Sending gpt a chunk to process.")
-            res:SquadDataItem     
+            print("Sending gpt a chunk to process.") 
             try:
                 res = gpt_3_5_chain.run(user_input=document)
             except:
@@ -143,18 +141,7 @@ while files_processed < number_of_files_to_process:
                     res = gpt_3_5_retry_with_error_parser.parse_with_prompt(res, gpt_3_5_chain.prompt.format_prompt(user_input=document))
             res.title = game_name
             res.id = str(uuid.uuid4())
-            res_asdict = res.dict()            
-            try:
-              print("Validating response from chatGPT returned correct schema.")
-              validate(instance=res_asdict, schema=SQUAD_V2_JSON_SCHEMA)
-              existing_squad_data.append(res_asdict)
-            except json.decoder.JSONDecodeError:
-                print('chatGPT returned invalid JSON')
-                exit(1)
-            except jsonschema.exceptions.ValidationError as ve:
-                print('JSON from chatGPT doesn\'t match the schema. Details:', ve) # Example error message: JSON from chatGPT doesn't match the schema. Details: 'question' is a required property               
-                exit(1)              
-                
+            res_asdict = res.dict()               
         files_processed += 1
     except Exception as e:
         print(traceback.format_exc())
