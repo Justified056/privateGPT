@@ -4,14 +4,12 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from pydantic_classes.squadclasses import SquadDataItem
 from langchain.output_parsers import PydanticOutputParser, OutputFixingParser, RetryWithErrorOutputParser
 from dotenv import load_dotenv
-from constants import SQUAD_V2_JSON_SCHEMA
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 from typing import List
 import pickle
 import json
-import jsonschema
 import uuid
 import traceback
 
@@ -61,10 +59,12 @@ def load_squad_data_from_file():
         print(f"No data to load file {game_being_processed_file_name} does not exist")
         return [] 
 
-def save_squad_data_to_file (existing_data):
+def save_squad_data_to_file (data_to_save):
+    existing_squad_data = load_squad_data_from_file()
+    existing_squad_data.extend(data_to_save)
     with open(game_being_processed_file_name, 'w') as f:
         print(f"Saving data to {game_being_processed_file_name}")
-        json.dump(existing_data, f)      
+        json.dump(existing_squad_data, f)      
 
 def get_document_contents_from_dir(processed_files_list:list[str]) -> str:
     if not SOURCE_FILES:  # The directory is empty
@@ -103,8 +103,10 @@ def create_ai_gpt3_5_structured_output_chain():
     pydantic_parser = PydanticOutputParser(pydantic_object=SquadDataItem)
     format_instructions = """The output must be formatted as a JSON instance that conforms to the JSON example below.
                              You must always generate your own JSON from the user input that conforms to the JSON schema.
-                             Never return the example output given to you below. 
+                             Never return the example output given to you below.
+
                              EXAMPLE INPUT: Heading to the left you'll see a deactivated Pendulum Statue with a fork in the path.
+
                              EXAMPLE OUTPUT:
                              {
                                 "title": "Enter Title Here",
@@ -114,14 +116,13 @@ def create_ai_gpt3_5_structured_output_chain():
                                 "answers": {
                                                 "answer_start": [28],
                                                 "text": ["a deactivated Pendulum Statue"]
-                                            }
+                                           }
                              }"""# used to call this to get this before pydantic_parser.get_format_instructions()
     
-    template_string = """You are a world class algorithm for extracting question and answer data from user input.
-    
-    You return only the extracted output in the correct JSON format provided to you.
-
-    Take the user input below delimited by triple backticks and use it to create questions and answers.
+    template_string = """You are a world class algorithm for extracting question and answer data from user input.  
+                         The questions you generate must be clear. You must generate questions that are provided with specific information from the user input.
+                         The questions must not have ambiguous references, unclear scopes, unclear reference points, and an unclear interpretation. 
+                         Take the user input below delimited by triple backticks and use it to create questions and answers.
 
     user input: ```{user_input}```
 
@@ -137,8 +138,7 @@ def create_ai_gpt3_5_structured_output_chain():
 
 # Make the chain
 gpt_3_5_chain, gpt_3_5_output_fixing_parser, gpt_3_5_retry_with_error_parser = create_ai_gpt3_5_structured_output_chain()
-#Get existing data from last run
-existing_squad_data = load_squad_data_from_file()
+squad_data_to_save = []
 processed_files = load_processed_files_list()
 
 while files_processed < number_of_files_to_process:
@@ -157,15 +157,14 @@ while files_processed < number_of_files_to_process:
                     res = gpt_3_5_retry_with_error_parser.parse_with_prompt(res, gpt_3_5_chain.prompt.format_prompt(user_input=document))
             res.title = game_name
             res.id = str(uuid.uuid4())
-            res_asdict = res.dict()
-            existing_squad_data.append(res_asdict)               
+            squad_data_to_save.append(res.dict())               
         files_processed += 1
+        save_squad_data_to_file(squad_data_to_save)
+        save_processed_files_list(processed_files)
     except Exception as e:
         print(traceback.format_exc())
         #May need to log whatever existing_squad_data is at the time. It's most likely the reason an exception is thrown here   
         print(f"Exception processing file. Exception: {e}")
         exit(1)
 
-save_squad_data_to_file(existing_squad_data)
-save_processed_files_list(processed_files)
 print("Done")
