@@ -74,7 +74,7 @@ def get_document_contents_from_dir(processed_files_list:list[str]) -> str:
     processed_file_path = os.path.join(source_directory, current_file_name)
     processed_files_list.append(current_file_name)
     print(f"Processing file: {processed_file_path}")
-    with open(processed_file_path, 'r') as file:
+    with open(processed_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     
     print(f"Found content length: {len(content)} from {processed_file_path}")
