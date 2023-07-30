@@ -80,7 +80,7 @@ def get_document_contents_from_dir(processed_files_list:list[str]) -> str:
     print(f"Found content length: {len(content)} from {processed_file_path}")
     return content
     
-def process_document(processed_files_list) -> List[Document]:
+def process_document(processed_files_list) -> List[str]:
     """
     Load document and split in chunks
     """
@@ -102,8 +102,8 @@ def create_ai_gpt3_5_structured_output_chain():
     
     pydantic_parser = PydanticOutputParser(pydantic_object=SquadDataItem)
     format_instructions = """The output must be formatted as a JSON instance that conforms to the JSON example below.
-                             You must always generate your own JSON from the user input that conforms to the JSON schema.
                              Never return the example output given to you below.
+                             Never come up with multiple questions when creating your output.
 
                              EXAMPLE INPUT: Heading to the left you'll see a deactivated Pendulum Statue with a fork in the path.
 
@@ -147,7 +147,7 @@ while files_processed < number_of_files_to_process:
         for document in documents:
             print("Sending gpt a chunk to process.") 
             try:
-                res = gpt_3_5_chain.run(user_input=document)
+                res = gpt_3_5_chain.run(user_input=document.strip())
             except:
                 print("GPT sent back incorrect format. Trying the fixing parser.")
                 try:
