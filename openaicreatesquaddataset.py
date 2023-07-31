@@ -104,7 +104,8 @@ def create_ai_gpt3_5_structured_output_chain():
     pydantic_parser = PydanticOutputParser(pydantic_object=SquadDataItem)
     format_instructions = """The output must be formatted as a JSON instance that conforms to the JSON example below.
                              Never return the example output given to you below.
-                             Never come up with multiple questions when creating your output.
+                             You always return a single JSON object like the example.
+                             You never return multiple JSON objects like the example, even if you can create multiple objects from the user input.
 
                              EXAMPLE INPUT: Heading to the left you'll see a deactivated Pendulum Statue with a fork in the path.
 
