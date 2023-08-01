@@ -70,7 +70,12 @@ def get_document_contents_from_dir(processed_files_list:list[str]) -> str:
     if not SOURCE_FILES:  # The directory is empty
         print(f"No documents found in {source_directory}")
         return None
-    current_file_name = list[str](filter(lambda x: x not in processed_files_list, SOURCE_FILES))[0]
+    try:
+      current_file_name = list[str](filter(lambda x: x not in processed_files_list, SOURCE_FILES))[0]
+    except IndexError:
+        print("No files to process anymore. Exiting.")
+        exit(1)
+
     processed_file_path = os.path.join(source_directory, current_file_name)
     processed_files_list.append(current_file_name)
     print(f"Processing file: {processed_file_path}")
